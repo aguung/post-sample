@@ -1,0 +1,83 @@
+{{ define "content_users" }}
+<div
+  class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200"
+>
+  <div class="border-b border-gray-200 px-6 py-4 bg-gray-50">
+    <h3 class="text-lg font-semibold text-gray-700">All Users</h3>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-gray-600">
+      <thead class="bg-gray-100 uppercase text-xs font-semibold text-gray-500">
+        <tr>
+          <th class="px-6 py-3">ID</th>
+          <th class="px-6 py-3">Email</th>
+          <th class="px-6 py-3">Role</th>
+          <th class="px-6 py-3">Created At</th>
+          <th class="px-6 py-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {{ range .Users }}
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-4 font-medium">{{ .ID }}</td>
+          <td class="px-6 py-4 text-gray-900">{{ .Email }}</td>
+          <td class="px-6 py-4">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ if eq .Role 1 }}bg-purple-100 text-purple-800{{ else }}bg-blue-100 text-blue-800{{ end }}"
+            >
+              {{ if eq .Role 1 }}Admin{{ else }}User{{ end }}
+            </span>
+          </td>
+          <td class="px-6 py-4">{{ .CreatedAt.Format "Jan 02, 2006" }}</td>
+          <td class="px-6 py-4 text-right">
+            <button
+              onclick="deleteItem('/admin/users/{{ .ID }}')"
+              class="text-red-500 hover:text-red-700 font-medium text-xs border border-red-200 hover:border-red-400 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition-colors"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+        {{ end }} {{ if not .Users }}
+        <tr>
+          <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+            No users found just yet.
+          </td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function deleteItem(url) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(url, { method: "DELETE" });
+          if (res.ok) {
+            Swal.fire("Deleted!", "The user has been deleted.", "success").then(
+              () => {
+                window.location.reload();
+              },
+            );
+          } else {
+            Swal.fire("Error!", "Failed to delete user.", "error");
+          }
+        } catch (e) {
+          Swal.fire("Error!", e.message, "error");
+        }
+      }
+    });
+  }
+</script>
+{{ end }}
